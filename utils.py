@@ -14,5 +14,9 @@ def group(lst, n):
 
 
 def user_has_tags(user, tags):
-    # TODO
-    return True
+    user_tags = user.tags
+    for tag in user_tags:
+        if tag in tags:
+            return True
+
+    return False

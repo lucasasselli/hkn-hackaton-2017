@@ -7,14 +7,14 @@ import broadcast
 from apscheduler.schedulers.background import BackgroundScheduler
 
 # Costanti
-CHECK_EVENT_PERIOD = 5
+CHECK_EVENT_PERIOD = 60
 
 global updater
 updater = Updater(secrets.BOT_TOKEN)
 
 
 def poll_event():
-    logging.info("Controllo notifica nuovi eventi...")
+    logging.info("Notifico nuovi eventi...")
     broadcast.notify_new_events(updater.bot)
 
 
@@ -31,9 +31,10 @@ def main():
     # Parse input utente
     dp.add_handler(MessageHandler(Filters.text, core.msg_parser))
     dp.add_handler(MessageHandler(Filters.command, core.cmd_parser))
+    dp.add_handler(CallbackQueryHandler(core.join_event))
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(broadcast.check_new_event, 'interval', seconds=5)
+    scheduler.add_job(poll_event, 'interval', seconds=CHECK_EVENT_PERIOD)
     scheduler.start()
 
     # Inizia il polling del bot
