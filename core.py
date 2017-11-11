@@ -1,7 +1,8 @@
+import sys
+sys.path.insert(0, 'backend')
+
 import logging
-import urllib
-import json
-from backend import connection
+import connection
 import utils
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 
