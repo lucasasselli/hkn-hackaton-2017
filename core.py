@@ -69,6 +69,7 @@ def uid_parser(uid):
 
 
 def tag_graph(bot, update):
+
     reply_keyboard = create_listsoflists()
     markup = ReplyKeyboardMarkup([["Done"]] + reply_keyboard, one_time_keyboard=False)
     update.message.reply_text(
@@ -87,8 +88,21 @@ def create_listsoflists():
 
 
 def add_tag(bot, update):
+    if(update.message.text == "Done"):
+        markup = ReplyKeyboardMarkup([["Si"],["No"]], one_time_keyboard=True)
+        update.message.reply_text(
+            "I tags sono stati inseriti, vuoi continuare?",
+            reply_markup=markup)
+        pending_dict[update.message.chat.id] = ritornare
+        return
+
     logging.debug("Invio al server %s", update.message.text)
 
+def ritornare(bot,update):
+    if(update.message.text == "Si"):
+        tag_graph(bot,update)
+    else:
+        del pending_dict[update.message.chat.id]
 # fine add tag
 
 # gestione input
