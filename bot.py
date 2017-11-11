@@ -9,6 +9,7 @@ def main():
 
     # Logger
     logging.basicConfig(level=logging.DEBUG)
+    Updater.basicConfig(level=logging.WARN)
 
     # Setup
     updater = Updater(secrets.BOT_TOKEN)
