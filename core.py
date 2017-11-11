@@ -1,12 +1,17 @@
-import logging,urllib,json,eventbot
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup,ReplyKeyboardMarkup
+import logging
+import urllib
+import json
+import eventbot
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 
-pending_dict = dict() #dizionario utente_id -> funzioni
+pending_dict = dict()  # dizionario utente_id -> funzioni
 
-tags = ["#iot","#tecnolo","asda","asdasd","qwtwt","as3qtwg","otktop","asijdoapkd","ookokè","aposdoakso","aiopqowieqpo",
-        "sadanidknaskd","#asdwq","okokpqo","opkkpo"] #list per debug
+tags = ["#iot", "#tecnolo", "asda", "asdasd", "qwtwt", "as3qtwg", "otktop", "asijdoapkd", "ookokè", "aposdoakso", "aiopqowieqpo",
+        "sadanidknaskd", "#asdwq", "okokpqo", "opkkpo"]  # list per debug
 
 # starting setup
+
+
 def keyboard(bot, update):
 
     # keyboard = [[InlineKeyboardButton("13-18", callback_data='1'),
@@ -25,12 +30,14 @@ def keyboard(bot, update):
         "Seleziona la tua età: ",
         reply_markup=markup)
 
+
 def start(bot, update):
-    logging.debug("Invio al server %s",update.message.text)
+    logging.debug("Invio al server %s", update.message.text)
     update.message.reply_text("Inserisci la città: ")
     pending_dict[update.message.chat.id] = posizione
 
-def posizione(bot,update):
+
+def posizione(bot, update):
     logging.debug("Invio al server %s", update.message.text)
     pending_dict[update.message.chat.id] = raggio
     reply_keyboard = [['10km', '50km'],
@@ -40,7 +47,8 @@ def posizione(bot,update):
         "Seleziona il raggio massimo d'interesse: ",
         reply_markup=markup)
 
-def raggio(bot,update):
+
+def raggio(bot, update):
     logging.debug("Invio al server %s", update.message.text)
     del pending_dict[update.message.chat.id]
 # fine setup
@@ -51,32 +59,46 @@ def uid_parser(uid):
     return 0
 
 # add tag
-def tag_graph(bot,update):
+
+
+def tag_graph(bot, update):
     reply_keyboard = create_listsoflists()
-    markup = ReplyKeyboardMarkup([["Done"]]+reply_keyboard, one_time_keyboard=False)
+    markup = ReplyKeyboardMarkup([["Done"]] + reply_keyboard, one_time_keyboard=False)
     update.message.reply_text(
         "Selezione i tags a cui sei interessato: ",
         reply_markup=markup)
-    pending_dict[update.message.chat.id] = add_tag;
+    pending_dict[update.message.chat.id] = add_tag
+
 
 def create_listsoflists():
     print(eventbot.list_tags())
-    return list(group(tags,3))
+    return list(group(tags, 3))
 
 
 def group(lst, n):
-    for i in range(0, len(lst), n):
-        val = lst[i:i + n]
-        if len(val) == n:
-            yield tuple(val)
+    i = 0
+    out = list()
+    temp = list()
+    for elem in lst:
+        temp.append(elem)
+        i += 1
+        if i == 3:
+            i = 0
+            out.append(temp)
+            temp = list()
+
+    return out
+
 
 def add_tag(bot, update):
     logging.debug("Invio al server %s", update.message.text)
 
-#fine add tag
+# fine add tag
 
 # gestione input
-def cmd_parser(bot,update):
+
+
+def cmd_parser(bot, update):
     msg_text = update.message.text
     cmd = msg_text[1:]
     uid = update.message.chat.id
@@ -85,11 +107,11 @@ def cmd_parser(bot,update):
         # Start command
 
         update.message.reply_text("Benvenuto!")
-        keyboard(bot,update)
+        keyboard(bot, update)
         pending_dict[uid] = start
     elif cmd == "add":
         pending_dict[uid] = add_tag
-        tag_graph(bot,update)
+        tag_graph(bot, update)
     else:
         update.message.reply_text("Comando non riconosciuto!")
 
@@ -116,5 +138,4 @@ def arg_parser(bot, update):
     logging.debug("Parsing argument for dictionary")
     pending_dict[uid](bot, update)
 
-#fine gestione input
-
+# fine gestione input
