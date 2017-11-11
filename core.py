@@ -2,9 +2,17 @@ import logging
 import urllib
 import json
 import eventbot
+import utils
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 
 pending_dict = dict()  # dizionario utente_id -> funzioni
+
+
+class ChatInfo:
+    def __init__(self, bot, update):
+        self.bot = bot
+        self.update = update
+
 
 tags = ["#iot", "#tecnolo", "asda", "asdasd", "qwtwt", "as3qtwg", "otktop", "asijdoapkd", "ookokè", "aposdoakso", "aiopqowieqpo",
         "sadanidknaskd", "#asdwq", "okokpqo", "opkkpo"]  # list per debug
@@ -30,9 +38,8 @@ def keyboard(bot, update):
         "Seleziona la tua età: ",
         reply_markup=markup)
 
-
-def start(bot, update):
-    logging.debug("Invio al server %s", update.message.text)
+    def start(bot, update):
+        logging.debug("Invio al server %s", update.message.text)
     update.message.reply_text("Inserisci la città: ")
     pending_dict[update.message.chat.id] = posizione
 
@@ -47,9 +54,8 @@ def posizione(bot, update):
         "Seleziona il raggio massimo d'interesse: ",
         reply_markup=markup)
 
-
-def raggio(bot, update):
-    logging.debug("Invio al server %s", update.message.text)
+    def raggio(bot, update):
+        logging.debug("Invio al server %s", update.message.text)
     del pending_dict[update.message.chat.id]
 # fine setup
 
@@ -72,22 +78,11 @@ def tag_graph(bot, update):
 
 def create_listsoflists():
     print(eventbot.list_tags())
-    return list(group(tags, 3))
 
+    tag_list = eventbot.list_tags()
+    tag_grouped = utils.group(tag_list, 3)
 
-def group(lst, n):
-    i = 0
-    out = list()
-    temp = list()
-    for elem in lst:
-        temp.append(elem)
-        i += 1
-        if i == 3:
-            i = 0
-            out.append(temp)
-            temp = list()
-
-    return out
+    return tag_grouped
 
 
 def add_tag(bot, update):
