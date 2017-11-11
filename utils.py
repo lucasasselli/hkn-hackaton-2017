@@ -11,3 +11,8 @@ def group(lst, n):
             temp = list()
 
     return out
+
+
+def user_has_tags(user, tags):
+    # TODO
+    return True
