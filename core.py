@@ -21,6 +21,14 @@ tags = ["#iot", "#tecnolo", "asda", "asdasd", "qwtwt", "as3qtwg", "otktop", "asi
 # starting setup
 
 
+def partecipero(bot,update):
+    keyboard = [[InlineKeyboardButton("Parteciperò", callback_data='1')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    update.message.reply_text("" , reply_markup=reply_markup)
+
+
+
 def keyboard(bot, update):
 
     # keyboard = [[InlineKeyboardButton("13-18", callback_data='1'),
