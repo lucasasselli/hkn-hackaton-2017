@@ -1,7 +1,7 @@
 import logging
 import urllib
 import json
-import eventbot
+from backend import connection
 import utils
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 
@@ -38,8 +38,8 @@ def keyboard(bot, update):
         "Seleziona la tua età: ",
         reply_markup=markup)
 
-    def start(bot, update):
-        logging.debug("Invio al server %s", update.message.text)
+def start(bot, update):
+    logging.debug("Invio al server %s", update.message.text)
     update.message.reply_text("Inserisci la città: ")
     pending_dict[update.message.chat.id] = posizione
 
@@ -54,8 +54,8 @@ def posizione(bot, update):
         "Seleziona il raggio massimo d'interesse: ",
         reply_markup=markup)
 
-    def raggio(bot, update):
-        logging.debug("Invio al server %s", update.message.text)
+def raggio(bot, update):
+    logging.debug("Invio al server %s", update.message.text)
     del pending_dict[update.message.chat.id]
 # fine setup
 
@@ -77,9 +77,9 @@ def tag_graph(bot, update):
 
 
 def create_listsoflists():
-    print(eventbot.list_tags())
+    print(connection.list_tags())
 
-    tag_list = eventbot.list_tags()
+    tag_list = connection.list_tags()
     tag_grouped = utils.group(tag_list, 3)
 
     return tag_grouped
