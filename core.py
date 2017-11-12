@@ -58,7 +58,9 @@ def start_step0(bot, update):
 
 def start_step1(bot, update):
     """ Step 1 del login, inserisci città """
-    update.message.reply_text("Inserisci la città: ")
+
+    markup = telegram.ReplyKeyboardMarkup([[telegram.KeyboardButton('Invia posizione', request_location=True)]])
+    update.message.reply_text(text="Dove ti trovi: ", reply_markup=markup)
 
     pending_dict[update.message.chat.id] = start_step2
     text = update.message.text
@@ -204,12 +206,14 @@ def cmd_parser(bot, update):
     elif cmd == "myevents":
         event_list = connection.get_events_by_uid(uid)
         for event in event_list:
-            print_event_button(bot,uid,event,False)
+            print_event_button(bot, uid, event, False)
     elif cmd == "mytags":
         tags = connection.get_user_by_uid(uid).tags
         for tag in tags:
             update.message.reply_text("{}".extend(tag))
-
+    elif cmd == "logout":
+        connection.user_delete(str(uid))
+        update.message.reply_text("Ci dispiace vederti andare via! :(")
     else:
         update.message.reply_text("Comando non riconosciuto!")
 
@@ -221,6 +225,7 @@ def msg_parser(bot, update):
     logging.debug("Nuovo messaggio da %s: %s", uid, msg_text)
 
     # Controlla che l'utente sia loggato o stia effettuando login
+    # TODO COntrolla
     # if not check_user_valid(update) and uid not in user_dict:
     #     return
 
