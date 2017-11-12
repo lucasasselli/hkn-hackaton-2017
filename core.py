@@ -21,17 +21,22 @@ tag_list = None
 
 def inline_event(bot, update):
     query = update.callback_query
-    uid = query.message.chat_id
-    event_id = query.data[:-1]
-    action = query.data[-1]
+    uid = query.from_user.id
+    eventid = query.data[1:]
+    action = query.data[0]
 
-    if action == 0:
-        logging.info("Utente %s partecipa a evento %s", uid, event_id)
+    event = connection.get_event_by_eventid(eventid)
+
+    if action == "0":
+        logging.info("Utente %s partecipa a evento %s", uid, eventid)
+        # TODO ...
+        bot.answer_callback_query(callback_query_id=query.id, text="Iscritto!")
+        # bot.answer_callback_query(callback_query_id=query.id, text="Sei già iscritto!")
     else:
-        logging.info("Utente %s chiede info di evento %s", uid, event_id)
-
-    # bot.edit_message_text(text="Ci vediamo all'evento {}!".format(event_id),
-    #                       chat_id=uid, message_id=query.message.message_id)
+        logging.info("Utente %s chiede info per evento %s", uid, eventid)
+        bot.send_message(chat_id=uid,
+                         text='<b>' + event.name + '</b>\n\n<a href="' + event.url + '"></a>.',
+                         parse_mode=telegram.ParseMode.HTML)
 
 
 def start_step0(bot, update):
@@ -232,9 +237,12 @@ def arg_parser(bot, update):
     pending_dict[uid](bot, update)
 
 
-def print_event_button(bot, uid, event):
-    keyboard = [[InlineKeyboardButton("Parteciperò", callback_data=event.eventid + str(0))],
-                [InlineKeyboardButton("Info", callback_data=event.eventid + str(1))]]
+def print_event_button(bot, uid, event, join=True):
+    if not join:
+        keyboard = [[InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)]]
+    else:
+        keyboard = [[InlineKeyboardButton("Parteciperò", callback_data=str(0) + event.eventid)],
+                    [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     bot.send_photo(chat_id=uid, photo=event.imageurl, reply_markup=reply_markup)
 
