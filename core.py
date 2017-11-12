@@ -31,14 +31,22 @@ def inline_event(bot, update):
         logging.info("Utente %s partecipa a evento %s", uid, eventid)
         if connection.subscribe_user(str(uid), eventid, 0):
             bot.answer_callback_query(callback_query_id=query.id, text="Iscritto!")
-            bot.delete_message(message_id=query.inline_message_id, user_id=uid)
         else:
             bot.answer_callback_query(callback_query_id=query.id, text="Sei già iscritto!")
+    elif action == "2":
+        logging.info("Utente %s abbandona evento %s", uid, eventid)
+        if connection.unsubscribe_user(str(uid), eventid):
+            bot.answer_callback_query(callback_query_id=query.id, text="Non partecipi più a questo evento!")
+        else:
+            bot.answer_callback_query(callback_query_id=query.id, text="Non sei iscritto a questo evento!")
+    elif action == "3":
+        bot.send_message(chat_id=uid, text="Non ancora implementato. Per prova @shopbot")
+    elif action == "4":
+        bot.send_location(chat_id=uid, latitude=event.lat, longitude=event.lon, text=event.place)
     else:
         logging.info("Utente %s chiede info per evento %s", uid, eventid)
         bot.send_message(chat_id=uid,
-                         text='<b>' + event.name + '</b>\n\n<a href="' + event.url + '">Link</a>.',
-                         parse_mode=telegram.ParseMode.HTML)
+                         text='<b>' + event.name + '</b>\n\nInizio: ' + event.start.strftime("%H:%M:%S %d-%m-%Y") + '\nFine: ' + event.end.strftime("%H:%M:%S %d-%m-%Y") + '\nPosti rimanenti: ' + str(event.availability) + '\n\n<a href="' + event.url + '">Link</a>', parse_mode=telegram.ParseMode.HTML)
 
 
 def start_step0(bot, update):
@@ -103,6 +111,8 @@ def start_step3(bot, update):
     del pending_dict[update.message.chat.id]
     del user_dict[update.message.chat.id]
 
+    update.message.reply_text("Utente registrato correttamente! Digita /list per l'elenco dei comandi")
+
 # fine setup
 
 
@@ -122,8 +132,8 @@ def create_listsoflists():
 
     global tag_list
     tag_list = connection.list_tags()
-    name_list = list()
 
+    name_list = list()
     for tag in tag_list:
         name_list.append(tag.name)
 
@@ -134,14 +144,15 @@ def create_listsoflists():
 
 def add_tag(bot, update):
     if(update.message.text == "Fine"):
-        markup = ReplyKeyboardMarkup([["Si"], ["No"]], one_time_keyboard=True)
+        markup = telegram.ReplyKeyboardRemove(True)
         update.message.reply_text(
-            "I tags sono stati inseriti, vuoi aggiungerne altri?",
+            "Tutti i tag inseriti",
             reply_markup=markup)
         pending_dict[update.message.chat.id] = end_tag
         return
     global tag_list
-    if(tag_list == None):
+    if not tag_list:
+        logging.debug("Taglist locale nulla!")
         tag_list = connection.list_tags()
     for tag in tag_list:
         if tag.name == update.message.text:
@@ -161,15 +172,6 @@ def end_tag(bot, update):
 # gestione input
 
 
-def check_user_valid(update):
-    """ Controlla che l'utente esista """
-    if not connection.user_exists(str(update.message.chat.id)):
-        update.message.reply_text("Non sei connesso al sistema!\n Invia /start per cominciare.")
-        return False
-    else:
-        return True
-
-
 def cmd_parser(bot, update):
     msg_text = update.message.text
     cmd = msg_text[1:]
@@ -185,7 +187,7 @@ def cmd_parser(bot, update):
             update.message.reply_text("Benvenuto!")
             start_step0(bot, update)
         else:
-            update.message.reply_text("Sei già loggato...")
+            update.message.reply_text("Sei già loggato... Digita /logout per uscire.")
         return
 
     # Se non è start controlla il login
@@ -200,20 +202,26 @@ def cmd_parser(bot, update):
     elif cmd == "suggest":
         # Suggested
         event_list = connection.list_events(False)
+        user = connection.get_user_by_uid(str(uid))
         for event in event_list:
-            logging.debug(event.eventid)
-            logging.debug(event.name)
-            logging.debug(event.imageurl)
-            print_event_button(bot, uid, event)
+            if utils.user_has_tags(user, event.tags):
+                print_event_button(bot, uid, event)
     elif cmd == "myevents":
         event_list = connection.get_event_by_uid(str(uid))
-        for event in event_list:
-            print_event_button(bot, uid, event, False)
+        if len(event_list) > 0:
+            for event in event_list:
+                print_event_button(bot, uid, event, False)
+        else:
+            update.message.reply_text("Non partecipi a nessun evento!")
     elif cmd == "mytags":
         tags = connection.get_user_by_uid(str(uid)).tags
-
-        for tag in tags:
-            update.message.reply_text(tag.name)
+        if len(tags) > 0:
+            for tag in tags:
+                update.message.reply_text(tag.name)
+        else:
+            update.message.reply_text("Nessun tag attivo!")
+    elif cmd == "list":
+        update.message.reply_text("/add - Aggiungi un nuovo tag\n/suggest - Mostra gli eventi suggeriti\n/myevents - I miei eventi\n/mytags - I miei tag\n/logout - Logout dal sistema")
     elif cmd == "logout":
         connection.user_delete(str(uid))
         update.message.reply_text("Ci dispiace vederti andare via! :(")
@@ -227,16 +235,13 @@ def msg_parser(bot, update):
     position = update.message.location
     logging.debug("Nuovo messaggio da %s: %s", uid, msg_text)
 
-    # Controlla che l'utente sia loggato o stia effettuando login
-    # TODO COntrolla
-    # if not check_user_valid(update) and uid not in user_dict:
-    #     return
-
-    if msg_text or position :
+    if msg_text or position:
         if uid in pending_dict:
             # Pending argument
             logging.debug("Argument inserted!")
             arg_parser(bot, update)
+        else:
+            update.message.reply_text("Input non valido!")
 
 
 def arg_parser(bot, update):
@@ -247,11 +252,27 @@ def arg_parser(bot, update):
 
 def print_event_button(bot, uid, event, join=True):
     if not join:
-        keyboard = [[InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)]]
+        if event.price > 0:
+            keyboard = [[InlineKeyboardButton("Paga ora", callback_data=str(3) + event.eventid)],
+                        [InlineKeyboardButton("Abbandona", callback_data=str(2) + event.eventid)],
+                        [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)],
+                        [InlineKeyboardButton("Posizione", callback_data=str(4) + event.eventid)]]
+        else:
+            keyboard = [[InlineKeyboardButton("Abbandona", callback_data=str(2) + event.eventid)],
+                        [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)],
+                        [InlineKeyboardButton("Posizione", callback_data=str(4) + event.eventid)]]
     else:
         keyboard = [[InlineKeyboardButton("Parteciperò", callback_data=str(0) + event.eventid)],
-                    [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)]]
+                    [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)],
+                    [InlineKeyboardButton("Posizione", callback_data=str(4) + event.eventid)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    bot.send_photo(chat_id=uid, photo=event.imageurl, reply_markup=reply_markup, caption=event.name)
+
+    if event.price == 0:
+        price = "Gratis"
+    else:
+        price = str(event.price) + " €"
+
+    text = event.name + " - " + price
+    bot.send_photo(chat_id=uid, photo=event.imageurl, reply_markup=reply_markup, caption=text)
 
 # fine gestione input

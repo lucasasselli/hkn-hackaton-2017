@@ -4,6 +4,8 @@ import core
 import logging
 import secrets
 import broadcast
+import threading
+import time
 from apscheduler.schedulers.background import BackgroundScheduler
 
 # Costanti
@@ -13,14 +15,9 @@ global updater
 updater = Updater(secrets.BOT_TOKEN)
 
 
-def poll_event():
-    logging.info("Notifico nuovi eventi...")
-    broadcast.notify_new_events(updater.bot)
-
-
 def main():
     # Logger
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     logging.info("Inizio...")
     logging.getLogger("telegram").setLevel(logging.WARNING)
     logging.getLogger("apscheduler").setLevel(logging.WARNING)
@@ -32,10 +29,6 @@ def main():
     dp.add_handler(MessageHandler(Filters.text | Filters.location, core.msg_parser))
     dp.add_handler(MessageHandler(Filters.command, core.cmd_parser))
     dp.add_handler(CallbackQueryHandler(core.inline_event))
-
-    # scheduler = BackgroundScheduler()
-    # scheduler.add_job(poll_event, 'interval', seconds=CHECK_EVENT_PERIOD)
-    # scheduler.start()
 
     # Inizia il polling del bot
     updater.start_polling()

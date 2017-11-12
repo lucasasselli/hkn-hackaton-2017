@@ -9,14 +9,17 @@ def group(lst, n):
             i = 0
             out.append(temp)
             temp = list()
+    if len(temp) > 0:
+        out.append(temp)
 
     return out
 
 
-def user_has_tags(user, tags):
+def user_has_tags(user, event_tags):
     user_tags = user.tags
-    for tag in user_tags:
-        if tag in tags:
-            return True
+    for utag in user_tags:
+        for etag in event_tags:
+            if etag.name == utag.name:
+                return True
 
     return False
