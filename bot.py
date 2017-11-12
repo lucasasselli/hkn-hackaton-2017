@@ -31,11 +31,11 @@ def main():
     # Parse input utente
     dp.add_handler(MessageHandler(Filters.text, core.msg_parser))
     dp.add_handler(MessageHandler(Filters.command, core.cmd_parser))
-    dp.add_handler(CallbackQueryHandler(core.join_event))
+    dp.add_handler(CallbackQueryHandler(core.inline_event))
 
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(poll_event, 'interval', seconds=CHECK_EVENT_PERIOD)
-    scheduler.start()
+    # scheduler = BackgroundScheduler()
+    # scheduler.add_job(poll_event, 'interval', seconds=CHECK_EVENT_PERIOD)
+    # scheduler.start()
 
     # Inizia il polling del bot
     updater.start_polling()

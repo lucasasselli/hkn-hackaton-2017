@@ -22,9 +22,3 @@ def notify_new_events(bot):
                 reply_markup = InlineKeyboardMarkup(keyboard)
                 # TODO Aggiunge messaggio
                 bot.send_photo(chat_id=user.uid, photo=event.imageurl, reply_markup=reply_markup)
-
-
-def __debug__send_event(bot, uid, event_id):
-    keyboard = [[InlineKeyboardButton("Parteciperò", callback_data=event_id)]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    bot.send_photo(chat_id=uid, photo='https://ih0.redbubble.net/image.225771333.5422/flat,800x800,075,t.jpg', reply_markup=reply_markup)
