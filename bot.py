@@ -29,7 +29,7 @@ def main():
     dp = updater.dispatcher
 
     # Parse input utente
-    dp.add_handler(MessageHandler(Filters.text, core.msg_parser))
+    dp.add_handler(MessageHandler(Filters.text | Filters.location, core.msg_parser))
     dp.add_handler(MessageHandler(Filters.command, core.cmd_parser))
     dp.add_handler(CallbackQueryHandler(core.inline_event))
 
