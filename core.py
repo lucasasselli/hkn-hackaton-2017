@@ -29,13 +29,14 @@ def inline_event(bot, update):
 
     if action == "0":
         logging.info("Utente %s partecipa a evento %s", uid, eventid)
-        # TODO ...
-        bot.answer_callback_query(callback_query_id=query.id, text="Iscritto!")
-        # bot.answer_callback_query(callback_query_id=query.id, text="Sei già iscritto!")
+        if connection.subscribe_user(str(uid), eventid, 0):
+            bot.answer_callback_query(callback_query_id=query.id, text="Iscritto!")
+        else:
+            bot.answer_callback_query(callback_query_id=query.id, text="Sei già iscritto!")
     else:
         logging.info("Utente %s chiede info per evento %s", uid, eventid)
         bot.send_message(chat_id=uid,
-                         text='<b>' + event.name + '</b>\n\n<a href="' + event.url + '"></a>.',
+                         text='<b>' + event.name + '</b>\n\n<a href="' + event.url + '">Link</a>.',
                          parse_mode=telegram.ParseMode.HTML)
 
 
@@ -128,11 +129,10 @@ def create_listsoflists():
 
 def add_tag(bot, update):
     if(update.message.text == "Fine"):
-        # markup = ReplyKeyboardMarkup([["Si"], ["No"]], one_time_keyboard=True)
-        # update.message.reply_text(
-        #     "I tags sono stati inseriti, vuoi aggiungerne altri?",
-        #     reply_markup=markup)
-        telegram.ReplyKeyboardRemove()
+        markup = ReplyKeyboardMarkup([["Si"], ["No"]], one_time_keyboard=True)
+        update.message.reply_text(
+            "I tags sono stati inseriti, vuoi aggiungerne altri?",
+            reply_markup=markup)
         pending_dict[update.message.chat.id] = end_tag
         return
 
@@ -244,6 +244,6 @@ def print_event_button(bot, uid, event, join=True):
         keyboard = [[InlineKeyboardButton("Parteciperò", callback_data=str(0) + event.eventid)],
                     [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    bot.send_photo(chat_id=uid, photo=event.imageurl, reply_markup=reply_markup)
+    bot.send_photo(chat_id=uid, photo=event.imageurl, reply_markup=reply_markup, caption=event.name)
 
 # fine gestione input

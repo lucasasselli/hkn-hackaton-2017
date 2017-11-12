@@ -17,8 +17,4 @@ def notify_new_events(bot):
         for user in user_list:
             # User
             if utils.user_has_tags(user, event.tags):
-                keyboard = [[InlineKeyboardButton("Parteciperò", callback_data=core.EventCallback(event.eventid, 0))],
-                            [InlineKeyboardButton("Info", callback_data=core.EventCallback(event.eventid, 1))]]
-                reply_markup = InlineKeyboardMarkup(keyboard)
-                # TODO Aggiunge messaggio
-                bot.send_photo(chat_id=user.uid, photo=event.imageurl, reply_markup=reply_markup)
+                core.print_event_button(bot, user.uid, event)
