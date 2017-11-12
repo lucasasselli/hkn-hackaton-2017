@@ -196,11 +196,15 @@ def cmd_parser(bot, update):
             logging.debug(event.name)
             logging.debug(event.imageurl)
             print_event_button(bot, uid, event)
-    elif cmd == "myevents"
-        event_list = connection.get_event_by_tag(utils.list_of_tags())
-        for event in event_list
-            reply_markup =
-            bot.send_photo(chat_id=uid, photo=event.imageurl, reply_markup=reply_markup)
+    elif cmd == "myevents":
+        event_list = connection.get_events_by_uid(uid)
+        for event in event_list:
+            print_event_button(bot,uid,event,False)
+    elif cmd == "mytags":
+        tags = connection.get_user_by_uid(uid).tags
+        for (tag in tags)
+            update.message.reply_text("{}".extend(tag))
+
     else:
         update.message.reply_text("Comando non riconosciuto!")
 
