@@ -86,8 +86,9 @@ def start_step2(bot, update):
         "Seleziona il raggio massimo d'interesse: ",
         reply_markup=markup)
     pending_dict[update.message.chat.id] = start_step3
-    user_dict[update.message.chat.id].lat = 0
-    user_dict[update.message.chat.id].lon = 0
+    location = update.message.location
+    user_dict[update.message.chat.id].lat = location.latitude
+    user_dict[update.message.chat.id].lon = location.longitude
 
 
 def start_step3(bot, update):
