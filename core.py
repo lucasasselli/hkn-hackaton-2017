@@ -118,7 +118,6 @@ def start_step3(bot, update):
 
 # add tag
 def tag_graph(bot, update):
-
     reply_keyboard = create_listsoflists()
     markup = ReplyKeyboardMarkup([["Fine"]] + reply_keyboard, one_time_keyboard=False)
     update.message.reply_text(
@@ -128,8 +127,6 @@ def tag_graph(bot, update):
 
 
 def create_listsoflists():
-    print(connection.list_tags())
-
     global tag_list
     tag_list = connection.list_tags()
 
@@ -158,7 +155,11 @@ def add_tag(bot, update):
         if tag.name == update.message.text:
             logging.debug("inserisco %s", tag.name)
             tagid = tag.tagid
-            connection.add_tag(str(update.message.chat.id), tagid)
+            success = connection.add_tag(str(update.message.chat.id), tagid)
+            if success:
+                update.message.reply_text("Tag aggiunto")
+            else:
+                update.message.reply_text("Tag già presente")
             return
 
 
