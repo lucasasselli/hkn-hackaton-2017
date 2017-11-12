@@ -135,16 +135,17 @@ def add_tag(bot, update):
             reply_markup=markup)
         pending_dict[update.message.chat.id] = end_tag
         return
-
-    tagid = -1
+    global tag_list
+    if(tag_list == None):
+        tag_list = connection.list_tags()
     for tag in tag_list:
         if tag.name == update.message.text:
+            logging.debug("inserisco %s", tag.name)
             tagid = tag.tagid
+            connection.add_tag(str(update.message.chat.id), tagid)
+            return
 
-    if tagid >= 0:
-        connection.add_tag(str(update.message.chat.id), tagid)
-    else:
-        update.message.reply_text("Tag non riconosciuto!")
+
 
 
 def end_tag(bot, update):
@@ -202,13 +203,15 @@ def cmd_parser(bot, update):
             logging.debug(event.imageurl)
             print_event_button(bot, uid, event)
     elif cmd == "myevents":
-        event_list = connection.get_events_by_uid(uid)
+        event_list = connection.get_event_by_uid(str(uid))
         for event in event_list:
             print_event_button(bot,uid,event,False)
     elif cmd == "mytags":
-        tags = connection.get_user_by_uid(uid).tags
+        tags = connection.get_user_by_uid(str(uid)).tags
+
         for tag in tags:
-            update.message.reply_text("{}".extend(tag))
+            update.message.reply_text(tag.name)
+
 
     else:
         update.message.reply_text("Comando non riconosciuto!")
