@@ -1,3 +1,6 @@
+import logging
+
+
 def group(lst, n):
     i = 0
     out = list()
@@ -17,9 +20,10 @@ def group(lst, n):
 
 def user_has_tags(user, event_tags):
     user_tags = user.tags
+    # Print it
     for utag in user_tags:
         for etag in event_tags:
-            if etag.name == utag.name:
+            if etag == utag:
                 return True
 
     return False

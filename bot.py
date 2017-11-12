@@ -6,7 +6,6 @@ import secrets
 import broadcast
 import threading
 import time
-from apscheduler.schedulers.background import BackgroundScheduler
 
 # Costanti
 CHECK_EVENT_PERIOD = 60

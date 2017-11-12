@@ -55,7 +55,7 @@ def start_step0(bot, update):
     user.uid = str(update.message.chat.id)
 
     reply_keyboard = [['15-18', '18-26'],
-                      ['26-35', '35-35+']]
+                      ['26-35', '35+']]
     markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
     update.message.reply_text(
         "Seleziona la tua età: ",
@@ -202,10 +202,17 @@ def cmd_parser(bot, update):
     elif cmd == "suggest":
         # Suggested
         event_list = connection.list_events(False)
-        user = connection.get_user_by_uid(str(uid))
-        for event in event_list:
-            if utils.user_has_tags(user, event.tags):
-                print_event_button(bot, uid, event)
+        user_tags = connection.get_tags_of_user(str(uid))
+        if len(user_tags) > 0:
+            for event in event_list:
+                print(event.tags)
+                for tag in user_tags:
+                    if tag in event.tags:
+                        print_event_button(bot, uid, event)
+                        break
+
+        else:
+            update.message.reply_text("Non hai tag impostati! Usa /add per aggiungerli.")
     elif cmd == "myevents":
         event_list = connection.get_event_by_uid(str(uid))
         if len(event_list) > 0:
@@ -253,18 +260,19 @@ def arg_parser(bot, update):
 def print_event_button(bot, uid, event, join=True):
     if not join:
         if event.price > 0:
-            keyboard = [[InlineKeyboardButton("Paga ora", callback_data=str(3) + event.eventid)],
-                        [InlineKeyboardButton("Abbandona", callback_data=str(2) + event.eventid)],
-                        [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)],
-                        [InlineKeyboardButton("Posizione", callback_data=str(4) + event.eventid)]]
+            keyboard = [[InlineKeyboardButton("Paga ora", callback_data=str(3) + event.eventid),
+                         InlineKeyboardButton("Abbandona", callback_data=str(2) + event.eventid)],
+                        [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid),
+                         InlineKeyboardButton("Posizione", callback_data=str(4) + event.eventid)]]
         else:
             keyboard = [[InlineKeyboardButton("Abbandona", callback_data=str(2) + event.eventid)],
-                        [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)],
-                        [InlineKeyboardButton("Posizione", callback_data=str(4) + event.eventid)]]
+                        [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid),
+                         InlineKeyboardButton("Posizione", callback_data=str(4) + event.eventid)]]
     else:
-        keyboard = [[InlineKeyboardButton("Parteciperò", callback_data=str(0) + event.eventid)],
-                    [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)],
-                    [InlineKeyboardButton("Posizione", callback_data=str(4) + event.eventid)]]
+        keyboard = [[InlineKeyboardButton("Partecipa", callback_data=str(0) + event.eventid)],
+                    [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid),
+                     InlineKeyboardButton("Posizione", callback_data=str(4) + event.eventid)]]
+
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     if event.price == 0:
