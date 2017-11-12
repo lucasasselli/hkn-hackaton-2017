@@ -22,10 +22,10 @@ tag_list = None
 def inline_event(bot, update):
     query = update.callback_query
     uid = query.message.chat_id
-    event_id = query.data[:-1]
-    action = query.data[-1]
+    event_id = query.data[1:]
+    action = query.data[0]
 
-    if action == 0:
+    if action == "0":
         logging.info("Utente %s partecipa a evento %s", uid, event_id)
     else:
         logging.info("Utente %s chiede info di evento %s", uid, event_id)
@@ -223,9 +223,12 @@ def arg_parser(bot, update):
     pending_dict[uid](bot, update)
 
 
-def print_event_button(bot, uid, event):
-    keyboard = [[InlineKeyboardButton("Parteciperò", callback_data=event.eventid + str(0))],
-                [InlineKeyboardButton("Info", callback_data=event.eventid + str(1))]]
+def print_event_button(bot, uid, event, join=True):
+    if not join:
+        keyboard = [[InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)]]
+    else:
+        keyboard = [[InlineKeyboardButton("Parteciperò", callback_data=str(0) + event.eventid)],
+                    [InlineKeyboardButton("Info", callback_data=str(1) + event.eventid)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     bot.send_photo(chat_id=uid, photo=event.imageurl, reply_markup=reply_markup)
 
