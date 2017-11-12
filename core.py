@@ -199,6 +199,11 @@ def cmd_parser(bot, update):
                         [InlineKeyboardButton("Info", callback_data={"eventid": event.eventid, "action": 1})]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             bot.send_photo(chat_id=uid, photo=event.imageurl, reply_markup=reply_markup)
+    elif cmd == "myevents"
+        event_list = connection.get_event_by_tag(utils.list_of_tags())
+        for event in event_list
+            reply_markup =
+            bot.send_photo(chat_id=uid, photo=event.imageurl, reply_markup=reply_markup)
     else:
         update.message.reply_text("Comando non riconosciuto!")
 
