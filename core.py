@@ -22,8 +22,8 @@ tag_list = None
 def inline_event(bot, update):
     query = update.callback_query
     uid = query.message.chat_id
-    event_id = query.data["eventid"]
-    action = query.data["action"]
+    event_id = query.data[:-1]
+    action = query.data[-1]
 
     if action == 0:
         logging.info("Utente %s partecipa a evento %s", uid, event_id)
@@ -195,10 +195,7 @@ def cmd_parser(bot, update):
             logging.debug(event.eventid)
             logging.debug(event.name)
             logging.debug(event.imageurl)
-            keyboard = [[InlineKeyboardButton("Parteciperò", callback_data={"eventid": event.eventid, "action": 1})],
-                        [InlineKeyboardButton("Info", callback_data={"eventid": event.eventid, "action": 1})]]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            bot.send_photo(chat_id=uid, photo=event.imageurl, reply_markup=reply_markup)
+            print_event_button(bot, uid, event)
     else:
         update.message.reply_text("Comando non riconosciuto!")
 
@@ -224,5 +221,12 @@ def arg_parser(bot, update):
     uid = update.message.chat.id
     logging.debug("Parsing argument for pending command")
     pending_dict[uid](bot, update)
+
+
+def print_event_button(bot, uid, event):
+    keyboard = [[InlineKeyboardButton("Parteciperò", callback_data=event.eventid + str(0))],
+                [InlineKeyboardButton("Info", callback_data=event.eventid + str(1))]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    bot.send_photo(chat_id=uid, photo=event.imageurl, reply_markup=reply_markup)
 
 # fine gestione input
