@@ -207,7 +207,7 @@ def cmd_parser(bot, update):
             print_event_button(bot,uid,event,False)
     elif cmd == "mytags":
         tags = connection.get_user_by_uid(uid).tags
-        for (tag in tags)
+        for tag in tags:
             update.message.reply_text("{}".extend(tag))
 
     else:
