@@ -60,7 +60,8 @@ def start_step0(bot, update):
 def start_step1(bot, update):
     """ Step 1 del login, inserisci città """
 
-    markup = telegram.ReplyKeyboardMarkup([[telegram.KeyboardButton('Invia posizione', request_location=True)]])
+    markup = telegram.ReplyKeyboardMarkup([[telegram.KeyboardButton('Invia posizione', request_location=True)]],
+                                          one_time_keyboard=True)
     update.message.reply_text(text="Dove ti trovi: ", reply_markup=markup)
 
     pending_dict[update.message.chat.id] = start_step2
@@ -81,7 +82,7 @@ def start_step1(bot, update):
 def start_step2(bot, update):
     """ Step 2 del login, inserisci raggio """
     reply_keyboard = [['10km', '50km'],
-                      ['100km', 'Verso l\'infinito e oltre']]
+                      ['100km', '500km']]
     markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
     update.message.reply_text(
         "Seleziona il raggio massimo d'interesse: ",
@@ -223,7 +224,7 @@ def cmd_parser(bot, update):
 def msg_parser(bot, update):
     msg_text = update.message.text
     uid = update.message.chat.id
-
+    position = update.message.location
     logging.debug("Nuovo messaggio da %s: %s", uid, msg_text)
 
     # Controlla che l'utente sia loggato o stia effettuando login
@@ -231,7 +232,7 @@ def msg_parser(bot, update):
     # if not check_user_valid(update) and uid not in user_dict:
     #     return
 
-    if msg_text:
+    if msg_text or position :
         if uid in pending_dict:
             # Pending argument
             logging.debug("Argument inserted!")
