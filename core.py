@@ -31,6 +31,7 @@ def inline_event(bot, update):
         logging.info("Utente %s partecipa a evento %s", uid, eventid)
         if connection.subscribe_user(str(uid), eventid, 0):
             bot.answer_callback_query(callback_query_id=query.id, text="Iscritto!")
+            bot.delete_message(message_id=query.inline_message_id, user_id=uid)
         else:
             bot.answer_callback_query(callback_query_id=query.id, text="Sei già iscritto!")
     else:
@@ -149,8 +150,6 @@ def add_tag(bot, update):
             return
 
 
-
-
 def end_tag(bot, update):
     if(update.message.text == "Si"):
         tag_graph(bot, update)
@@ -208,7 +207,7 @@ def cmd_parser(bot, update):
     elif cmd == "myevents":
         event_list = connection.get_event_by_uid(str(uid))
         for event in event_list:
-            print_event_button(bot,uid,event,False)
+            print_event_button(bot, uid, event, False)
     elif cmd == "mytags":
         tags = connection.get_user_by_uid(str(uid)).tags
 
