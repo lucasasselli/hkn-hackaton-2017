@@ -1,11 +1,6 @@
-import sys
-sys.path.insert(0, 'backend')
-
-import logging
 import connection
 import utils
 import core
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 def notify_new_events(bot):

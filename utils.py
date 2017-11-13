@@ -1,6 +1,3 @@
-import logging
-
-
 def group(lst, n):
     i = 0
     out = list()

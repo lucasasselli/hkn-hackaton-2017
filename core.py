@@ -1,11 +1,7 @@
-import sys
-sys.path.insert(0, 'backend')
-
 import logging
 import connection
 from connection import User
 import utils
-import broadcast
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 import telegram
 
